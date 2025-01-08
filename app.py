@@ -4,7 +4,9 @@ import requests
 from io import StringIO
 from tqdm import tqdm
 from datetime import datetime
+
 st.set_page_config(layout="wide")
+
 # Replace with your GitHub personal access token
 GITHUB_TOKEN = st.secrets["GITHUB_TOKEN"]
 
@@ -132,6 +134,7 @@ column_order = [
     'Closing Date',
 ]
 combined_df = combined_df[column_order]
+combined_df = combined_df.sort_values(by="CLosing Date",ascending=True)
 
 # Display the DataFrame in Streamlit
 st.write(combined_df)
