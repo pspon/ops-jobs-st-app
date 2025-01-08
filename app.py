@@ -4,7 +4,7 @@ import requests
 from io import StringIO
 from tqdm import tqdm
 from datetime import datetime
-
+st.set_page_config(layout="wide")
 # Replace with your GitHub personal access token
 GITHUB_TOKEN = st.secrets["GITHUB_TOKEN"]
 
