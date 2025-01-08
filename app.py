@@ -134,7 +134,7 @@ column_order = [
     'Closing Date',
 ]
 combined_df = combined_df[column_order]
-combined_df = combined_df.sort_values(by="CLosing Date",ascending=True)
+combined_df = combined_df.sort_values(by="Closing Date",ascending=True)
 
 # Display the DataFrame in Streamlit
 st.write(combined_df)
