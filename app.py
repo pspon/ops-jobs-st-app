@@ -136,7 +136,7 @@ filtered_df = combined_df[
     (combined_df['Salary Min'] >= salary_filter[0]) &
     (combined_df['Salary Max'] <= salary_filter[1]) &
     ((combined_df['Organization'] == organization_filter) | (organization_filter == "All")) &
-    (combined_df['Location'].str.lower().str.contains(location_filter) &
+    (combined_df['Location'].str.lower().str.contains(location_filter)) &
     (combined_df['Job Title'].str.lower().str.contains(job_filter))
 ]
 
