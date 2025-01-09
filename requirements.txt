@@ -2,3 +2,6 @@ streamlit
 pandas
 requests
 tqdm
+matplotlib
+seaborn
+plotly
