@@ -130,8 +130,8 @@ with st.sidebar:
 
     # Filter by Job ID
     job_ids = combined_df['Job ID'].unique()
-    job_id_filter = st.multiselect("Job ID", job_ids)
-    
+    job_id_filter = st.multiselect("Job ID", job_ids, default=job_ids)
+
 # Apply filters based on Salary Type, Minimum Salary, Organization, Location, and Date Range
 filtered_df = combined_df[
     (combined_df['Closing Date'] >= pd.to_datetime(start_date)) &
