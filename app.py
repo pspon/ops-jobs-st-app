@@ -158,7 +158,7 @@ filtered_df = filtered_df.sort_values(by=['Closing Date','Salary Min'],ascending
 
 
 
-st.data_editor(
+st.dataframe(
     filtered_df,
     column_config={
         "Link": st.column_config.LinkColumn(
