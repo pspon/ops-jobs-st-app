@@ -122,6 +122,10 @@ organization_filter = st.selectbox("Select Organization", ["All"] + list(organiz
 locations = combined_df['Location'].unique()
 location_filter = st.text_input("Fuzzy Search Location", "").lower()
 
+# Filter by Job Title (using fuzzy matching)
+jobs = combined_df['Job Title'].unique()
+job_filter = st.text_input("Fuzzy Search Job Title", "").lower()
+
 # Filter by Closing Date (Date Range)
 start_date, end_date = st.date_input("Select Date Range", value=(datetime.today(), datetime.today() + timedelta(days=15)))
 
@@ -132,7 +136,8 @@ filtered_df = combined_df[
     (combined_df['Salary Min'] >= salary_filter[0]) &
     (combined_df['Salary Max'] <= salary_filter[1]) &
     ((combined_df['Organization'] == organization_filter) | (organization_filter == "All")) &
-    (combined_df['Location'].str.lower().str.contains(location_filter))
+    (combined_df['Location'].str.lower().str.contains(location_filter) &
+    (combined_df['Job Title'].str.lower().str.contains(job_filter))
 ]
 
 
