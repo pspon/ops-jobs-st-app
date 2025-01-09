@@ -141,7 +141,7 @@ filtered_df = combined_df[
     ((combined_df['Organization'] == organization_filter) | (organization_filter == "All")) &
     (combined_df['Location'].str.lower().str.contains(location_filter)) &
     (combined_df['Job Title'].str.lower().str.contains(job_filter)) &
-    (combined_df['Job ID'].str.contains(job_id_filter))
+    (combined_df['Job ID'].isin(job_id_filter))
 ]
 
 
