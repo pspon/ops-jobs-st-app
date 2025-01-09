@@ -144,7 +144,7 @@ filtered_df = combined_df[
 with st.sidebar:
     # Filter by Job ID
     job_ids = filtered_df['Job ID'].unique()
-    job_id_filter = st.multiselect("Job ID", job_ids)
+    job_id_filter = st.multiselect("Job ID", job_ids, default = job_ids)
 
 filtered_df = filtered_df[(filtered_df['Job ID'].isin(job_id_filter))]
 
