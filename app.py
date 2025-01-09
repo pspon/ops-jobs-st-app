@@ -128,9 +128,7 @@ with st.sidebar:
     # Filter by Closing Date (Date Range)
     start_date, end_date = st.date_input("Select Date Range", value=(datetime.today(), datetime.today() + timedelta(days=15)))
 
-    # Filter by Job ID
-    job_ids = combined_df['Job ID'].unique()
-    job_id_filter = st.multiselect("Job ID", job_ids)
+
 
 # Apply filters based on Salary Type, Minimum Salary, Organization, Location, and Date Range
 filtered_df = combined_df[
@@ -140,11 +138,15 @@ filtered_df = combined_df[
     (combined_df['Salary Max'] <= salary_filter[1]) &
     ((combined_df['Organization'] == organization_filter) | (organization_filter == "All")) &
     (combined_df['Location'].str.lower().str.contains(location_filter)) &
-    (combined_df['Job Title'].str.lower().str.contains(job_filter)) &
-    (combined_df['Job ID'].isin(job_id_filter))
+    (combined_df['Job Title'].str.lower().str.contains(job_filter))
 ]
 
+with st.sidebar:
+    # Filter by Job ID
+    job_ids = filtered_df['Job ID'].unique()
+    job_id_filter = st.multiselect("Job ID", job_ids)
 
+filtered_df = filtered_df[(filtered_df['Job ID'].isin(job_id_filter))]
 
 # Add clickable links to Job ID column
 filtered_df['Link']  = filtered_df['Job ID'].apply(lambda x: f"https://www.gojobs.gov.on.ca/employees/Preview.aspx?JobID={x}")
