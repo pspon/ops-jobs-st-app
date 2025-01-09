@@ -111,24 +111,27 @@ combined_df['Job ID'] = combined_df['Job ID'].apply(lambda x: str(x).replace(","
 # Streamlit App Layout
 st.title("OPS Jobs Data")
 
-# Filter by Minimum Salary
-salary_filter = st.slider("Select Salary Range", min_value=50000, max_value=200000, value=(80000, 160000))
+with st.sidebar:
+    # Filter by Minimum Salary
+    salary_filter = st.slider("Select Salary Range", min_value=50000, max_value=200000, value=(80000, 160000))
+    
+    # Filter by Organization
+    organizations = combined_df['Organization'].unique()
+    organization_filter = st.selectbox("Select Organization", ["All"] + list(organizations))
+    
+    # Filter by Location (using fuzzy matching)
+    location_filter = st.text_input("Location", "").lower()
+    
+    # Filter by Job Title (using fuzzy matching)
+    job_filter = st.text_input("Job Title", "").lower()
+    
+    # Filter by Closing Date (Date Range)
+    start_date, end_date = st.date_input("Select Date Range", value=(datetime.today(), datetime.today() + timedelta(days=15)))
 
-# Filter by Organization
-organizations = combined_df['Organization'].unique()
-organization_filter = st.selectbox("Select Organization", ["All"] + list(organizations))
-
-# Filter by Location (using fuzzy matching)
-locations = combined_df['Location'].unique()
-location_filter = st.text_input("Fuzzy Search Location", "").lower()
-
-# Filter by Job Title (using fuzzy matching)
-jobs = combined_df['Job Title'].unique()
-job_filter = st.text_input("Fuzzy Search Job Title", "").lower()
-
-# Filter by Closing Date (Date Range)
-start_date, end_date = st.date_input("Select Date Range", value=(datetime.today(), datetime.today() + timedelta(days=15)))
-
+    # Filter by Job ID
+    job_ids = combined_df['Job ID'].unique()
+    job_id_filter = st.multiselect("Job ID", job_ids)
+    
 # Apply filters based on Salary Type, Minimum Salary, Organization, Location, and Date Range
 filtered_df = combined_df[
     (combined_df['Closing Date'] >= pd.to_datetime(start_date)) &
@@ -137,7 +140,8 @@ filtered_df = combined_df[
     (combined_df['Salary Max'] <= salary_filter[1]) &
     ((combined_df['Organization'] == organization_filter) | (organization_filter == "All")) &
     (combined_df['Location'].str.lower().str.contains(location_filter)) &
-    (combined_df['Job Title'].str.lower().str.contains(job_filter))
+    (combined_df['Job Title'].str.lower().str.contains(job_filter)) &
+    (combined_df['Job ID'].str.contains(job_id_filter))
 ]
 
 
