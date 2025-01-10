@@ -121,7 +121,7 @@ st.title("OPS Jobs Data")
 
 with st.sidebar:
     # Filter by Minimum Salary
-    salary_filter = st.slider("Select Salary Range", min_value=50000, max_value=200000, value=(80000, 160000))
+    salary_filter = st.slider("Select Salary Range", max_value=200000, value=(80000, 160000))
     
     # Filter by Organization
     organizations = combined_df['Organization'].unique()
