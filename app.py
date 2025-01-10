@@ -110,8 +110,8 @@ combined_df['Salary Min'] = combined_df['Salary'].apply(lambda x: calculate_annu
 combined_df['Salary Max'] = combined_df['Salary'].apply(lambda x: calculate_annual_salary(x, 'Max'))
 
 # Ensure that the "Closing Date" column is in datetime format for proper handling
-combined_df['Closing Date'] = pd.to_datetime(combined_df['Closing Date'], errors='coerce')
-combined_df['Closing Date Display'] = combined_df['Closing Date'].dt.strftime('%Y-%m-%d')
+combined_df['Closing Date Object'] = pd.to_datetime(combined_df['Closing Date'], errors='coerce')
+combined_df['Closing Date'] = combined_df['Closing Date'].dt.strftime('%Y-%m-%d')
 
 # Assuming 'Job ID' is the column name in your DataFrame
 combined_df['Job ID'] = combined_df['Job ID'].apply(lambda x: str(x).replace(",", ""))
@@ -134,14 +134,14 @@ with st.sidebar:
     job_filter = st.text_input("Job Title", "").lower()
     
     # Filter by Closing Date (Date Range)
-    start_date, end_date = st.date_input("Select Date Range", value=(datetime.today(), datetime.today() + timedelta(weeks=4)), min_value=combined_df['Closing Date'].min())
+    start_date, end_date = st.date_input("Select Date Range", value=(datetime.today(), datetime.today() + timedelta(weeks=4)), min_value=combined_df['Closing Date Object'].min())
 
 
 
 # Apply filters based on Salary Type, Minimum Salary, Organization, Location, and Date Range
 filtered_df = combined_df[
-    (combined_df['Closing Date'] >= pd.to_datetime(start_date)) &
-    (combined_df['Closing Date'] <= pd.to_datetime(end_date)) &
+    (combined_df['Closing Date Object'] >= pd.to_datetime(start_date)) &
+    (combined_df['Closing Date Object'] <= pd.to_datetime(end_date)) &
     (combined_df['Salary Min'] >= salary_filter[0]) &
     (combined_df['Salary Max'] <= salary_filter[1]) &
     ((combined_df['Organization'] == organization_filter) | (organization_filter == "All")) &
@@ -168,7 +168,7 @@ column_order = [
     'Salary Min',
     'Salary Max',
     'Location',
-    'Closing Date Display',
+    'Closing Date',
     'Link',
 ]
 filtered_df = filtered_df[column_order]
@@ -199,7 +199,7 @@ col1, col2 = st.columns(2)
 with col1:
     # Plot 1: Count of Unique Jobs by Closing Date
     st.subheader("Count of Jobs by Closing Date")
-    closing_date_counts = filtered_df['Closing Date'].dropna().dt.date.value_counts().sort_index()
+    closing_date_counts = filtered_df['Closing Date Object'].dropna().dt.date.value_counts().sort_index()
     plt.figure(figsize=(10, 6))
     closing_date_counts.plot(kind='bar', color='skyblue')
     plt.title("Count of Unique Jobs by Closing Date")
