@@ -171,14 +171,14 @@ column_order = [
     'Closing Date',
     'Link',
 ]
-filtered_df = filtered_df[column_order]
-filtered_df = filtered_df.sort_values(by=['Closing Date','Salary Min'],ascending=[True,True])
+display_df = display_df[column_order]
+display_df = display_df.sort_values(by=['Closing Date','Salary Min'],ascending=[True,True])
 
 
 
 
 st.dataframe(
-    filtered_df,
+    display_df,
     column_config={
         "Link": st.column_config.LinkColumn(
             "URL", display_text="Open"
