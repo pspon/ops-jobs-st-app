@@ -171,7 +171,7 @@ column_order = [
     'Closing Date',
     'Link',
 ]
-display_df = display_df[column_order]
+display_df = filtered_df[column_order]
 display_df = display_df.sort_values(by=['Closing Date','Salary Min'],ascending=[True,True])
 
 
