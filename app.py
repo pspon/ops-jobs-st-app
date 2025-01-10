@@ -122,6 +122,16 @@ combined_df['Job ID'] = combined_df['Job ID'].apply(lambda x: str(x).replace(","
 st.title("OPS Jobs Data")
 
 with st.sidebar:
+    # Toggle TDA / restricted posting switch
+    show_restricted = st.checkbox('Show Restricted Job Titles', value=False)
+
+# Filter DataFrame based on toggle switch
+if show_restricted:
+    combined_df = combined_df[combined_df['Job Title'].str.contains('Restricted to')]
+else:
+    combined_df = combined_df[~combined_df['Job Title'].str.contains('Restricted to')]
+
+with st.sidebar:
     # Filter by Minimum Salary
     salary_filter = st.slider("Select Salary Range", max_value=200000, value=(80000, 160000))
     
