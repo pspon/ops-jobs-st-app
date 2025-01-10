@@ -111,7 +111,7 @@ combined_df['Salary Max'] = combined_df['Salary'].apply(lambda x: calculate_annu
 
 # Ensure that the "Closing Date" column is in datetime format for proper handling
 combined_df['Closing Date Object'] = pd.to_datetime(combined_df['Closing Date'], errors='coerce')
-combined_df['Closing Date'] = combined_df['Closing Date'].dt.strftime('%Y-%m-%d')
+combined_df['Closing Date'] = combined_df['Closing Date Object'].dt.strftime('%Y-%m-%d')
 
 # Assuming 'Job ID' is the column name in your DataFrame
 combined_df['Job ID'] = combined_df['Job ID'].apply(lambda x: str(x).replace(",", ""))
