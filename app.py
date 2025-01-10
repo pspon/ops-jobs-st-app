@@ -127,9 +127,9 @@ with st.sidebar:
 
 # Filter DataFrame based on toggle switch
 if show_restricted:
-    combined_df = combined_df[combined_df['Job Title'].str.contains('Restricted to')]
+    combined_df = combined_df[combined_df['Job Title'].str.lower().str.contains('estricted to')]
 else:
-    combined_df = combined_df[~combined_df['Job Title'].str.contains('Restricted to')]
+    combined_df = combined_df[~combined_df['Job Title'].str.lower().str.contains('restricted to')]
 
 with st.sidebar:
     # Filter by Minimum Salary
