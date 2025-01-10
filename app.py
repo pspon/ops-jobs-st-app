@@ -134,7 +134,7 @@ with st.sidebar:
     job_filter = st.text_input("Job Title", "").lower()
     
     # Filter by Closing Date (Date Range)
-    start_date, end_date = st.date_input("Select Date Range", value=(datetime.today(), datetime.today() + timedelta(months=1)), min_value=combined_df['Closing Date'].min())
+    start_date, end_date = st.date_input("Select Date Range", value=(datetime.today(), datetime.today() + timedelta(weeks=4)), min_value=combined_df['Closing Date'].min())
 
 
 
