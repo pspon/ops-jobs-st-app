@@ -124,14 +124,7 @@ st.title("OPS Jobs Data")
 with st.sidebar:
     # Toggle TDA / restricted posting switch
     show_restricted = st.checkbox('Show Restricted Job Titles', value=False)
-
-# Filter DataFrame based on toggle switch
-if show_restricted:
-    combined_df = combined_df[combined_df['Job Title'].str.lower().str.contains('estricted to')]
-else:
-    combined_df = combined_df[~combined_df['Job Title'].str.lower().str.contains('restricted to')]
-
-with st.sidebar:
+    
     # Filter by Minimum Salary
     salary_filter = st.slider("Select Salary Range", max_value=200000, value=(80000, 160000))
     
@@ -160,6 +153,12 @@ filtered_df = combined_df[
     (combined_df['Location'].str.lower().str.contains(location_filter)) &
     (combined_df['Job Title'].str.lower().str.contains(job_filter))
 ]
+
+# Filter DataFrame based on toggle switch
+if show_restricted:
+    combined_df = combined_df[combined_df['Job Title'].str.lower().str.contains('restricted to')]
+else:
+    combined_df = combined_df[~combined_df['Job Title'].str.lower().str.contains('restricted to')]
 
 with st.sidebar:
     # Filter by Job ID
