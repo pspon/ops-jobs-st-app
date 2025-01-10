@@ -65,40 +65,42 @@ historical_job_df = pd.read_csv(csv_file_historical)
 combined_df = pd.concat([recent_job_df,new_job_df,historical_job_df])
 combined_df = combined_df.loc[:, ~combined_df.columns.str.contains('^Unnamed')].reset_index(drop=True)
 
+
 # Function to calculate annual salary based on different salary types
 def calculate_annual_salary(salary_str,type):
     if type == 'Min':
         try:
-            if 'Per Year' in salary_str:
-                salary_range = salary_str.replace('$', '').replace(',', '').replace(' Per Year', '').split(' - ')
+            salary_str = salary_str.replace(' (MplusM)','')
+            salary_range = salary_str.replace('$', '').replace(',', '').split(' Per')[0].split(' - ')
+            if 'Per Year'.lower() in salary_str.lower():
                 return (float(salary_range[0]))
-            elif 'Per Month' in salary_str:
-                salary_range = salary_str.replace('$', '').replace(',', '').replace(' Per Month', '').split(' - ')
+            elif 'Per Annum'.lower() in salary_str.lower():
+                return (float(salary_range[0]))
+            elif 'Per Month'.lower() in salary_str.lower():
                 return (float(salary_range[0])) * 12
-            elif 'Per Week' in salary_str:
-                salary_range = salary_str.replace('$', '').replace(',', '').replace(' Per Week', '').split(' - ')
+            elif 'Per Week'.lower() in salary_str.lower():
                 return (float(salary_range[0])) * 52
-            elif 'Per Hour' in salary_str:
-                salary_range = salary_str.replace('$', '').replace(',', '').replace(' Per Hour', '').split(' - ')
+            elif 'Per Hour'.lower() in salary_str.lower():
                 return (float(salary_range[0])) * 36.25 * 52
         except:
-            print(salary_str)
+            #print(salary_str)
             return None
     elif type == 'Max':
         try:
-            if 'Per Year' in salary_str:
-                salary_range = salary_str.replace('$', '').replace(',', '').replace(' Per Year', '').split(' - ')
+            salary_str = salary_str.replace(' (MplusM)','')
+            salary_range = salary_str.replace('$', '').replace(',', '').split(' Per')[0].split(' - ')
+            if 'Per Year'.lower() in salary_str.lower():
                 return (float(salary_range[1]))
-            elif 'Per Month' in salary_str:
-                salary_range = salary_str.replace('$', '').replace(',', '').replace(' Per Month', '').split(' - ')
+            elif 'Per Annum'.lower() in salary_str.lower():
+                return (float(salary_range[1]))
+            elif 'Per Month'.lower() in salary_str.lower():
                 return (float(salary_range[1])) * 12
-            elif 'Per Week' in salary_str:
-                salary_range = salary_str.replace('$', '').replace(',', '').replace(' Per Week', '').split(' - ')
+            elif 'Per Week'.lower() in salary_str.lower():
                 return (float(salary_range[1])) * 52
-            elif 'Per Hour' in salary_str:
-                salary_range = salary_str.replace('$', '').replace(',', '').replace(' Per Hour', '').split(' - ')
+            elif 'Per Hour'.lower() in salary_str.lower():
                 return (float(salary_range[1])) * 36.25 * 52
         except:
+            #print(salary_str)
             return None
     else:
         return None
