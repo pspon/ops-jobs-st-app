@@ -156,9 +156,9 @@ filtered_df = combined_df[
 
 # Filter DataFrame based on toggle switch
 if show_restricted:
-    combined_df = combined_df[combined_df['Job Title'].str.lower().str.contains('restricted to')]
+    filtered_df = filtered_df[filtered_df['Job Title'].str.lower().str.contains('restricted to')]
 else:
-    combined_df = combined_df[~combined_df['Job Title'].str.lower().str.contains('restricted to')]
+    filtered_df = filtered_df[~filtered_df['Job Title'].str.lower().str.contains('restricted to')]
 
 with st.sidebar:
     # Filter by Job ID
