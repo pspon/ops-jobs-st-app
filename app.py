@@ -23,6 +23,7 @@ DIRECTORY = st.secrets["DIRECTORY"]
 # URL of the CSV file in the private repo
 CURRENT_CSV_URL = st.secrets["CURRENT_CSV_URL"]
 RECENT_CSV_URL = st.secrets["RECENT_CSV_URL"]
+HISTORICAL_CSV_URL = st.secrets["HISTORICAL_CSV_URL"]
 
 # Function to fetch the list of files in the directory
 def fetch_file_list(repo_owner, repo_name, branch, directory, token):
@@ -53,11 +54,15 @@ def create_link(url:str) -> str:
 csv_file = fetch_csv_from_github(CURRENT_CSV_URL, GITHUB_TOKEN)
 new_job_df = pd.read_csv(csv_file)
 
-# Fetch the CSV file
+# Fetch the recent CSV file
 csv_file_recent = fetch_csv_from_github(RECENT_CSV_URL, GITHUB_TOKEN)
 recent_job_df = pd.read_csv(csv_file_recent)
 
-combined_df = pd.concat([recent_job_df,new_job_df])
+# Fetch the historical CSV file
+csv_file_historical = fetch_csv_from_github(HISTORICAL_CSV_URL, GITHUB_TOKEN)
+historical_job_df = pd.read_csv(csv_file_historical)
+
+combined_df = pd.concat([recent_job_df,new_job_df,historical_job_df])
 combined_df = combined_df.loc[:, ~combined_df.columns.str.contains('^Unnamed')].reset_index(drop=True)
 
 # Function to calculate annual salary based on different salary types
