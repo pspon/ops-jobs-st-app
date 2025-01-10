@@ -122,8 +122,6 @@ combined_df['Job ID'] = combined_df['Job ID'].apply(lambda x: str(x).replace(","
 st.title("OPS Jobs Data")
 
 with st.sidebar:
-    # Toggle TDA / restricted posting switch
-    show_restricted = st.checkbox('Show Restricted Job Titles', value=False)
     
     # Filter by Minimum Salary
     salary_filter = st.slider("Select Salary Range", max_value=200000, value=(80000, 160000))
@@ -141,6 +139,8 @@ with st.sidebar:
     # Filter by Closing Date (Date Range)
     start_date, end_date = st.date_input("Select Date Range", value=(datetime.today(), datetime.today() + timedelta(weeks=4)), min_value=combined_df['Closing Date Object'].min())
 
+    # Toggle TDA / restricted posting switch
+    show_restricted = st.checkbox('Show TDA Jobs', value=False)
 
 
 # Apply filters based on Salary Type, Minimum Salary, Organization, Location, and Date Range
