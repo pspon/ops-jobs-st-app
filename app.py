@@ -143,7 +143,7 @@ with st.sidebar:
     show_restricted = st.checkbox('Show TDA Jobs', value=False)
 
     # Toggle job url templates
-    show_int_URL = st.checkbox('Internal URLs', value=True)
+    show_int_URL = st.checkbox('Internal URLs', value=False)
 
 
 # Apply filters based on Salary Type, Minimum Salary, Organization, Location, and Date Range
