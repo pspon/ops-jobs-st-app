@@ -191,7 +191,7 @@ column_order = [
 display_df = filtered_df[column_order]
 display_df = display_df.sort_values(by=['Closing Date','Salary Min'],ascending=[True,True])
 
-if display_df:
+if display_df.shape[0] > 0:
     st.dataframe(
         display_df,
         column_config={
