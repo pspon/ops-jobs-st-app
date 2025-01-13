@@ -142,6 +142,9 @@ with st.sidebar:
     # Toggle TDA / restricted posting switch
     show_restricted = st.checkbox('Show TDA Jobs', value=False)
 
+    # Toggle job url templates
+    show_int_URL = st.checkbox('Internal URLs', value=True)
+
 
 # Apply filters based on Salary Type, Minimum Salary, Organization, Location, and Date Range
 filtered_df = combined_df[
@@ -168,7 +171,10 @@ with st.sidebar:
 filtered_df = filtered_df[(filtered_df['Job ID'].isin(job_id_filter))]
 
 # Add clickable links to Job ID column
-filtered_df['Link']  = filtered_df['Job ID'].apply(lambda x: f"https://www.gojobs.gov.on.ca/Preview.aspx?Language=English&JobID={x}")
+if show_int_URL == True:
+    filtered_df['Link']  = filtered_df['Job ID'].apply(lambda x: f"https://intra.employees.careers.gov.on.ca/Preview.aspx?JobID={x}")
+else:
+    filtered_df['Link']  = filtered_df['Job ID'].apply(lambda x: f"https://www.gojobs.gov.on.ca/Preview.aspx?Language=English&JobID={x}")
 #filtered_df['Link'] = [create_link(url) for url in filtered_df["Link"]]
 
 #Order and filter combined_df
