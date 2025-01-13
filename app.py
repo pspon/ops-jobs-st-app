@@ -191,45 +191,45 @@ column_order = [
 display_df = filtered_df[column_order]
 display_df = display_df.sort_values(by=['Closing Date','Salary Min'],ascending=[True,True])
 
-
-
-
-st.dataframe(
-    display_df,
-    column_config={
-        "Link": st.column_config.LinkColumn(
-            "URL", display_text="Open"
-        ),
-        "Salary Min": st.column_config.NumberColumn(
-            "Salary Min",
-            format="$%d",
-        ),
-        "Salary Max": st.column_config.NumberColumn(
-            "Salary Max",
-            format="$%d",
-        )
-    },
-    hide_index=True,
-)
-
-col1, col2 = st.columns(2)
-with col1:
-    # Plot 1: Count of Unique Jobs by Closing Date
-    st.subheader("Count of Jobs by Closing Date")
-    closing_date_counts = filtered_df['Closing Date Object'].dropna().dt.date.value_counts().sort_index()
-    plt.figure(figsize=(10, 6))
-    closing_date_counts.plot(kind='bar', color='skyblue')
-    plt.title("Count of Unique Jobs by Closing Date")
-    plt.xlabel("Closing Date")
-    plt.ylabel("Number of Jobs")
-    st.pyplot(plt)
-
-with col2:
-    # Plot 2: Distribution of Annual Salaries Across Jobs
-    st.subheader("Distribution of Annual Salaries Across Jobs")
-    plt.figure(figsize=(10, 6))
-    sns.histplot(filtered_df['Salary Min'].dropna(), kde=True, color='green', bins=30)
-    plt.title("Distribution of Annual Salaries")
-    plt.xlabel("Annual Salary")
-    plt.ylabel("Frequency")
-    st.pyplot(plt)
+if display_df:
+    st.dataframe(
+        display_df,
+        column_config={
+            "Link": st.column_config.LinkColumn(
+                "URL", display_text="Open"
+            ),
+            "Salary Min": st.column_config.NumberColumn(
+                "Salary Min",
+                format="$%d",
+            ),
+            "Salary Max": st.column_config.NumberColumn(
+                "Salary Max",
+                format="$%d",
+            )
+        },
+        hide_index=True,
+    )
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        # Plot 1: Count of Unique Jobs by Closing Date
+        st.subheader("Count of Jobs by Closing Date")
+        closing_date_counts = filtered_df['Closing Date Object'].dropna().dt.date.value_counts().sort_index()
+        plt.figure(figsize=(10, 6))
+        closing_date_counts.plot(kind='bar', color='skyblue')
+        plt.title("Count of Unique Jobs by Closing Date")
+        plt.xlabel("Closing Date")
+        plt.ylabel("Number of Jobs")
+        st.pyplot(plt)
+    
+    with col2:
+        # Plot 2: Distribution of Annual Salaries Across Jobs
+        st.subheader("Distribution of Annual Salaries Across Jobs")
+        plt.figure(figsize=(10, 6))
+        sns.histplot(filtered_df['Salary Min'].dropna(), kde=True, color='green', bins=30)
+        plt.title("Distribution of Annual Salaries")
+        plt.xlabel("Annual Salary")
+        plt.ylabel("Frequency")
+        st.pyplot(plt)
+else:
+    st.write('No jobs available')
