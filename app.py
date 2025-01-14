@@ -280,6 +280,10 @@ if display_df.shape[0] > 0:
             tickformat="%Y-%m-%d",  # Show Date in YYYY-MM-DD format
             title="Date"
         )
+
+        fig.update_yaxes(
+            title="Number of Jobs"
+        )
         
         # Display the plot
         st.plotly_chart(fig)
