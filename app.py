@@ -147,7 +147,7 @@ def adjust_salary_with_year(salary, salary_year):
         return salary
         
     # Return original salary if salary year is current year, no adjustment needed
-    current_year = datetime.datetime.now().year
+    current_year = datetime.now().year
     if salary_year == current_year:
         return salary
         
