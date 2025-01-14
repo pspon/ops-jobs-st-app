@@ -285,13 +285,31 @@ if display_df.shape[0] > 0:
         st.plotly_chart(fig)
     
     with col2:
-        # Plot 2: Distribution of Annual Salaries Across Jobs
+        # Plot 2: Interactive Distribution of Annual Salaries Across Jobs
         st.subheader("Distribution of Annual Salaries Across Jobs")
-        plt.figure(figsize=(10, 6))
-        sns.histplot(filtered_df['Salary Min'].dropna(), kde=True, color='green', bins=30)
-        plt.title("Distribution of Annual Salaries")
-        plt.xlabel("Annual Salary")
-        plt.ylabel("Frequency")
-        st.pyplot(plt)
+        
+        # Drop NaN values and create an interactive histogram using Plotly
+        salary_data = filtered_df['Salary Min'].dropna()
+    
+        # Create the plot with Plotly
+        fig = px.histogram(
+            salary_data,
+            x=salary_data,
+            nbins=30,  # Number of bins for the histogram
+            labels={'x': 'Annual Salary', 'count': 'Frequency'},
+            title="Distribution of Annual Salaries Across Jobs",
+            template='plotly',
+        )
+        
+        # Update the layout to make the plot more readable
+        fig.update_layout(
+            xaxis_title="Annual Salary",
+            yaxis_title="Frequency",
+            bargap=0.2,  # Gap between bars
+            hovermode="x unified",  # Unified hover label on the x-axis
+        )
+        
+        # Display the Plotly chart in Streamlit
+        st.plotly_chart(fig)
 else:
     st.write('No jobs available')
