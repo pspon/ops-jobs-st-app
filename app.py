@@ -234,6 +234,21 @@ column_order = [
 display_df = filtered_df[column_order]
 display_df = display_df.sort_values(by=['Closing Date','Salary Min'],ascending=[True,True])
 
+# Make sure 'Closing Date Object' is datetime
+filtered_df['Closing Date Object'] = pd.to_datetime(filtered_df['Closing Date Object'], errors='coerce')
+
+# Dropdown for user to select binning level (week, month, year)
+binning_options = ['Week', 'Month', 'Year']
+selected_binning = st.selectbox('Select Time Binning', binning_options, index=2)  # Default to 'Year'
+
+# Convert 'Closing Date Object' to different time granularities
+if selected_binning == 'Week':
+    filtered_df['Time Bin'] = filtered_df['Closing Date Object'].dt.to_period('W')  # Binning by week
+elif selected_binning == 'Month':
+    filtered_df['Time Bin'] = filtered_df['Closing Date Object'].dt.to_period('M')  # Binning by month
+else:  # Default to 'Year'
+    filtered_df['Time Bin'] = filtered_df['Closing Date Object'].dt.to_period('Y')  # Binning by year
+
 if display_df.shape[0] > 0:
     st.dataframe(
         display_df,
@@ -255,23 +270,20 @@ if display_df.shape[0] > 0:
     
     col1, col2 = st.columns(2)
     with col1:
-        # Plot 1: Count of Unique Jobs by Year
-        st.subheader("Count of Jobs by Year of Closing Date")
+        # Plot 1: Count of Jobs by Selected Time Granularity
+        st.subheader(f"Count of Jobs by {selected_binning} of Closing Date")
         
-        # Ensure 'Closing Date Object' is datetime
-        filtered_df['Closing Date Object'] = pd.to_datetime(filtered_df['Closing Date Object'], errors='coerce')
-        
-        # Extract the year and count jobs by year
-        filtered_df['Year'] = filtered_df['Closing Date Object'].dt.year
-        yearly_counts = filtered_df['Year'].value_counts().sort_index()
-
-        # Create a Plotly bar chart
-        fig = px.bar(
-            x=yearly_counts.index,
-            y=yearly_counts.values,
-            labels={'x': 'Year', 'y': 'Number of Jobs'},
-            title="Count of Jobs by Year of Closing Date"
+        # Create the plot with Plotly
+        fig = px.histogram(
+            filtered_df,
+            x='Time Bin',
+            labels={'Time Bin': selected_binning, 'count': 'Number of Jobs'},
+            title=f"Count of Jobs by {selected_binning} of Closing Date",
+            histfunc='count',  # This tells Plotly to count occurrences
+            template='plotly'
         )
+        
+        # Display the plot
         st.plotly_chart(fig)
     
     with col2:
