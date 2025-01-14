@@ -157,7 +157,7 @@ def adjust_salary_with_year(salary, salary_year):
         adjusted_salary = salary * (current_cpi / base_cpi)
         return round(adjusted_salary, 2)
     except:
-        print(f"{salary} {salary_year} FAILED")
+        #print(f"{salary} {salary_year} FAILED")
         return salary
 
 # Streamlit App Layout
