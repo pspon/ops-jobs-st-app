@@ -256,27 +256,29 @@ if display_df.shape[0] > 0:
     
     col1, col2 = st.columns(2)
     with col1:
-        # Plot 1: Count of Jobs by Closing Date (Binned by Year)
-        st.subheader("Count of Jobs by Year of Closing Date")
+        # Plot 1: Count of Jobs by Closing Date (Binned by Month-Year)
+        st.subheader("Count of Jobs by Month-Year of Closing Date")
         
         # Ensure 'Closing Date Object' is datetime
         filtered_df['Closing Date Object'] = pd.to_datetime(filtered_df['Closing Date Object'], errors='coerce')
         
+        # Create a new column with Month-Year format (e.g., Jan-2023)
+        filtered_df['Month-Year'] = filtered_df['Closing Date Object'].dt.to_period('M').astype(str)
+    
         # Create the plot with Plotly
         fig = px.histogram(
             filtered_df,
-            x='Closing Date Object',
-            nbins=len(filtered_df['Closing Date Object'].dt.year.unique()),  # Set number of bins based on unique years
-            labels={'Closing Date Object': 'Year', 'count': 'Number of Jobs'},
-            title="Count of Jobs by Year of Closing Date",
+            x='Month-Year',
+            labels={'Month-Year': 'Month-Year', 'count': 'Number of Jobs'},
+            title="Count of Jobs by Month-Year of Closing Date",
             histfunc='count',  # This tells Plotly to count occurrences
             template='plotly'
         )
         
-        # Update the x-axis to show only the year
+        # Update the x-axis to display in Month-Year format (e.g., Jan-2023)
         fig.update_xaxes(
-            tickformat="%Y",  # Show the year
-            title="Year"
+            tickformat="%b-%Y",  # Show Month-Year, e.g., Jan-2023
+            title="Month-Year"
         )
         
         # Display the plot
