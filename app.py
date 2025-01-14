@@ -323,26 +323,14 @@ if display_df.shape[0] > 0:
         filtered_df['Date'] = filtered_df['Closing Date Object'].dt.strftime('%Y-%m-%d')
 
         # Create the plot with Plotly
-        unique_jobs = filtered_df['Job Title'].unique()
-        if len(unique_jobs) > 1:
-                fig = px.histogram(
-                filtered_df,
-                x='Date',
-                labels={'Date': 'Date', 'count': 'Number of Jobs'},
-                title="Count of Jobs by Date of Closing Date",
-                histfunc='count',  # This tells Plotly to count occurrences
-                template='plotly',
-                color='Job Title'
-            )
-        else:
-            fig = px.histogram(
-                filtered_df,
-                x='Date',
-                labels={'Date': 'Date', 'count': 'Number of Jobs'},
-                title="Count of Jobs by Date of Closing Date",
-                histfunc='count',  # This tells Plotly to count occurrences
-                template='plotly'
-            )
+        fig = px.histogram(
+            filtered_df,
+            x='Date',
+            labels={'Date': 'Date', 'count': 'Number of Jobs'},
+            title="Count of Jobs by Date of Closing Date",
+            histfunc='count',  # This tells Plotly to count occurrences
+            template='plotly'
+        )
         
         # Update the x-axis to display in YYYY-MM-DD format
         fig.update_xaxes(
@@ -365,14 +353,26 @@ if display_df.shape[0] > 0:
         salary_data = filtered_df['Salary Min'].dropna()
     
         # Create the plot with Plotly
-        fig = px.histogram(
-            salary_data,
-            x=salary_data,
-            nbins=30,  # Number of bins for the histogram
-            labels={'x': 'Annual Salary', 'count': 'Frequency'},
-            title="Distribution of Annual Salaries Across Jobs",
-            template='plotly',
-        )
+        unique_jobs = filtered_df['Job Title'].unique()
+        if len(unique_jobs) > 1:
+            fig = px.histogram(
+                salary_data,
+                x=salary_data,
+                nbins=30,  # Number of bins for the histogram
+                labels={'x': 'Annual Salary', 'count': 'Frequency'},
+                title="Distribution of Annual Salaries Across Jobs",
+                template='plotly',
+                color='Job Title'
+            )
+        else:
+            fig = px.histogram(
+                salary_data,
+                x=salary_data,
+                nbins=30,  # Number of bins for the histogram
+                labels={'x': 'Annual Salary', 'count': 'Frequency'},
+                title="Distribution of Annual Salaries Across Jobs",
+                template='plotly',
+            )
         
         # Update the layout to make the plot more readable
         fig.update_layout(
