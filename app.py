@@ -231,6 +231,53 @@ if show_CPI_adjusted_salary == True:
     filtered_df['Salary Min'] = filtered_df.apply(lambda x: adjust_salary_with_year(x['Salary Min'], x['Closing Year']), axis=1)
     filtered_df['Salary Max'] = filtered_df.apply(lambda x: adjust_salary_with_year(x['Salary Max'], x['Closing Year']), axis=1)
 
+# Function to apply the boolean filter logic to the DataFrame
+def apply_filter(df, conditions):
+    # Start with the first condition
+    condition = conditions[0]['filter']
+    
+    for i in range(1, len(conditions)):
+        if conditions[i]['logic'] == 'AND':
+            condition &= conditions[i]['filter']
+        elif conditions[i]['logic'] == 'OR':
+            condition |= conditions[i]['filter']
+        elif conditions[i]['logic'] == 'NOT':
+            condition &= ~conditions[i]['filter']
+    
+    # Apply the final condition to filter the DataFrame
+    return df[condition]
+
+# List to hold the user-defined filter conditions
+conditions = []
+
+with st.sidebar:
+    # Loop to allow dynamic addition of filters
+    num_filters = st.number_input("Number of filters", min_value=1, max_value=5, value=1, step=1)
+    
+    for i in range(num_filters):
+        # Text entry for the filter condition
+        filter_text = st.text_input(f"Filter condition {i+1}", "")
+        
+        # Logical operator dropdown
+        logic_operator = st.selectbox(
+            f"Logical operator for filter {i+1}",
+            ('AND', 'OR', 'NOT') if i > 0 else ('AND', 'OR'),
+            key=f"operator_{i+1}"
+        )
+    
+        # Construct the condition based on user input
+        if filter_text:
+            filter_condition = filtered_df['Job Title'].str.contains(filter_text, case=False, na=False)
+            conditions.append({'filter': filter_condition, 'logic': logic_operator})
+    
+    # Display the resulting filtered DataFrame
+    if len(conditions) > 0:
+        filtered_df = apply_filter(filtered_df, conditions)
+        st.write("Filtered DataFrame with:", conditions)
+    else:
+        st.write("No filters applied.")
+
+
 #Order and filter combined_df
 column_order = [
     'Job ID',
