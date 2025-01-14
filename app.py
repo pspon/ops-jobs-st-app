@@ -144,7 +144,8 @@ def adjust_salary_with_year(salary, salary_year):
         return np.nan
         
     # Return original salary if salary year is current year, no adjustment needed
-    if salary_year == datetime.today.year():
+    current_year = datetime.datetime.now().year
+    if salary_year == current_year:
         return salary
         
     # Get the base and current CPI
