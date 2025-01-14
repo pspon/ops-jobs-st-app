@@ -256,29 +256,29 @@ if display_df.shape[0] > 0:
     
     col1, col2 = st.columns(2)
     with col1:
-        # Plot 1: Count of Jobs by Closing Date (Binned by Month-Year)
-        st.subheader("Count of Jobs by Month-Year of Closing Date")
+        # Plot 1: Count of Jobs by Closing Date (Binned by Date in YYYY-MM-DD format)
+        st.subheader("Count of Jobs by Date of Closing Date")
         
         # Ensure 'Closing Date Object' is datetime
         filtered_df['Closing Date Object'] = pd.to_datetime(filtered_df['Closing Date Object'], errors='coerce')
         
-        # Create a new column with Month-Year format (e.g., Jan-2023)
-        filtered_df['Month-Year'] = filtered_df['Closing Date Object'].dt.to_period('M').astype(str)
+        # Create a new column with Date in YYYY-MM-DD format
+        filtered_df['Date'] = filtered_df['Closing Date Object'].dt.strftime('%Y-%m-%d')
     
         # Create the plot with Plotly
         fig = px.histogram(
             filtered_df,
-            x='Month-Year',
-            labels={'Month-Year': 'Month-Year', 'count': 'Number of Jobs'},
-            title="Count of Jobs by Month-Year of Closing Date",
+            x='Date',
+            labels={'Date': 'Date', 'count': 'Number of Jobs'},
+            title="Count of Jobs by Date of Closing Date",
             histfunc='count',  # This tells Plotly to count occurrences
             template='plotly'
         )
         
-        # Update the x-axis to display in Month-Year format (e.g., Jan-2023)
+        # Update the x-axis to display in YYYY-MM-DD format
         fig.update_xaxes(
-            tickformat="%b-%Y",  # Show Month-Year, e.g., Jan-2023
-            title="Month-Year"
+            tickformat="%Y-%m-%d",  # Show Date in YYYY-MM-DD format
+            title="Date"
         )
         
         # Display the plot
