@@ -251,16 +251,20 @@ with st.sidebar:
         # Text entry for the filter condition
         filter_text = st.text_input(f"Filter condition {i+1}", "")
         
-        # Logical operator dropdown
-        logic_operator = st.selectbox(
-            f"Logical operator for filter {i+1}",
-            ('AND', 'OR', 'NOT') if i > 0 else ('AND', 'OR'),
-            key=f"operator_{i+1}"
-        )
+        # Logic operator dropdown for filters after the first one
+        if i > 0:
+            logic_operator = st.selectbox(
+                f"Logical operator for filter {i+1}",
+                ('AND', 'OR', 'NOT'),
+                key=f"operator_{i+1}"
+            )
+        else:
+            # The first filter does not require an operator, so we default to 'AND'
+            logic_operator = 'AND'
     
         # Construct the condition based on user input
         if filter_text:
-            filter_condition = filtered_df['Job Title'].str.lower().str.contains(filter_text.lower(), case=False, na=False)
+            filter_condition = df['Description'].str.contains(filter_text, case=False, na=False)
             conditions.append({'filter': filter_condition, 'logic': logic_operator})
     
     # Display the resulting filtered DataFrame
