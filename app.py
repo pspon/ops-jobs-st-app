@@ -245,23 +245,24 @@ conditions = []
 
 with st.sidebar:
     # Loop to allow dynamic addition of filters
-    num_filters = st.number_input("Number of filters", min_value=1, max_value=5, value=1, step=1)
+    num_filters = st.number_input("Number of Job Title Filters", min_value=1, max_value=5, value=1, step=1)
     
     for i in range(num_filters):
-        # Text entry for the filter condition
-        filter_text = st.text_input(f"Filter condition {i+1}", "")
         
         # Logic operator dropdown for filters after the first one
         if i > 0:
             logic_operator = st.selectbox(
-                f"Logical operator for filter {i+1}",
+                f"Logical Operator for Filter {i+1}",
                 ('AND', 'OR', 'NOT'),
                 key=f"operator_{i+1}"
             )
         else:
             # The first filter does not require an operator, so we default to 'AND'
             logic_operator = 'AND'
-    
+        
+        # Text entry for the filter condition
+        filter_text = st.text_input(f"Filter {i+1}", "")
+        
         # Construct the condition based on user input
         if filter_text:
             filter_condition = filtered_df['Job Title'].str.lower().str.contains(filter_text.lower(), case=False, na=False)
