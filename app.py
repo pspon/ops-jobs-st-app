@@ -141,6 +141,8 @@ def adjust_salary_with_year(salary, salary_year):
     # Ensure the year is valid
     if salary_year not in cpi_data:
         raise ValueError(f"Salary year must be between {min(cpi_data.keys())} and {max(cpi_data.keys())}.")
+        print(salary)
+        print(salary_year)
         return np.nan
         
     # Return original salary if salary year is current year, no adjustment needed
