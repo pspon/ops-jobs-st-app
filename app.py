@@ -118,6 +118,45 @@ combined_df['Closing Date'] = combined_df['Closing Date Object'].dt.strftime('%Y
 # Assuming 'Job ID' is the column name in your DataFrame
 combined_df['Job ID'] = combined_df['Job ID'].apply(lambda x: str(x).replace(",", ""))
 
+def adjust_salary_with_year(salary, salary_year):
+    """
+    Adjusts a salary based on the year it was set, using updated CPI values for Canada (2008-2024).
+    
+    Parameters:
+    - salary (float): The initial salary to be adjusted.
+    - salary_year (int): The year the salary was set.
+
+    Returns:
+    - float: The adjusted salary for the most recent year.
+    """
+    # Updated CPI values for Canada (2008-2024, average annual CPI)
+    cpi_data = {
+        2008: 114.1, 2009: 114.4, 2010: 116.5, 2011: 119.9, 2012: 121.7,
+        2013: 122.8, 2014: 125.2, 2015: 126.6, 2016: 128.4, 2017: 130.4,
+        2018: 133.4, 2019: 136.4, 2020: 137.0, 2021: 141.0, 2022: 152.8,
+        2023: 157.1, 2024: 160.0  # Example CPI for 2024
+    }
+    
+    # Ensure the year is valid
+    if salary_year not in cpi_data:
+        raise ValueError(f"Salary year must be between {min(cpi_data.keys())} and {max(cpi_data.keys())}.")
+    
+    # Get the base and current CPI
+    base_cpi = cpi_data[salary_year]
+    current_cpi = cpi_data[max(cpi_data.keys())]  # Most recent year
+    
+    # Adjust salary based on the CPI ratio
+    adjusted_salary = salary * (current_cpi / base_cpi)
+    return round(adjusted_salary, 2)
+
+# Extract the year from the "Closing Date Object"
+combined_df['Closing Year'] = combined_df['Closing Date Object'].dt.year
+
+# Adjust the 'Salary Min' and 'Salary Max' based on the year from 'Closing Year'
+combined_df['Salary Min'] = combined_df.apply(lambda x: adjust_salary_with_year(x['Salary Min'], x['Closing Year']), axis=1)
+combined_df['Salary Max'] = combined_df.apply(lambda x: adjust_salary_with_year(x['Salary Max'], x['Closing Year']), axis=1)
+
+
 # Streamlit App Layout
 st.title("OPS Jobs Data")
 
