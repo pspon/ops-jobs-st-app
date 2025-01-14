@@ -149,14 +149,6 @@ def adjust_salary_with_year(salary, salary_year):
     adjusted_salary = salary * (current_cpi / base_cpi)
     return round(adjusted_salary, 2)
 
-# Extract the year from the "Closing Date Object"
-combined_df['Closing Year'] = combined_df['Closing Date Object'].dt.year
-
-# Adjust the 'Salary Min' and 'Salary Max' based on the year from 'Closing Year'
-combined_df['Salary Min'] = combined_df.apply(lambda x: adjust_salary_with_year(x['Salary Min'], x['Closing Year']), axis=1)
-combined_df['Salary Max'] = combined_df.apply(lambda x: adjust_salary_with_year(x['Salary Max'], x['Closing Year']), axis=1)
-
-
 # Streamlit App Layout
 st.title("OPS Jobs Data")
 
@@ -183,6 +175,9 @@ with st.sidebar:
 
     # Toggle job url templates
     show_int_URL = st.checkbox('Internal URLs', value=False)
+
+    # Toggle inflation adjusted salary
+    show_CPI_adjusted_salary = st.checkbox('Show Inflation Adjusted Salaries', value=False)
 
 
 # Apply filters based on Salary Type, Minimum Salary, Organization, Location, and Date Range
@@ -215,6 +210,15 @@ if show_int_URL == True:
 else:
     filtered_df['Link']  = filtered_df['Job ID'].apply(lambda x: f"https://www.gojobs.gov.on.ca/Preview.aspx?Language=English&JobID={x}")
 #filtered_df['Link'] = [create_link(url) for url in filtered_df["Link"]]
+
+# Inflation-adjusted salary toggle
+if show_CPI_adjusted_salary == True:
+    # Extract the year from the "Closing Date Object"
+    filtered_df['Closing Year'] = filtered_df['Closing Date Object'].dt.year
+    
+    # Adjust the 'Salary Min' and 'Salary Max' based on the year from 'Closing Year'
+    filtered_df['Salary Min'] = filtered_df.apply(lambda x: adjust_salary_with_year(x['Salary Min'], x['Closing Year']), axis=1)
+    filtered_df['Salary Max'] = filtered_df.apply(lambda x: adjust_salary_with_year(x['Salary Max'], x['Closing Year']), axis=1)
 
 #Order and filter combined_df
 column_order = [
@@ -251,15 +255,24 @@ if display_df.shape[0] > 0:
     
     col1, col2 = st.columns(2)
     with col1:
-        # Plot 1: Count of Unique Jobs by Closing Date
-        st.subheader("Count of Jobs by Closing Date")
-        closing_date_counts = filtered_df['Closing Date Object'].dropna().dt.date.value_counts().sort_index()
-        plt.figure(figsize=(10, 6))
-        closing_date_counts.plot(kind='bar', color='skyblue')
-        plt.title("Count of Unique Jobs by Closing Date")
-        plt.xlabel("Closing Date")
-        plt.ylabel("Number of Jobs")
-        st.pyplot(plt)
+        # Plot 1: Count of Unique Jobs by Year
+        st.subheader("Count of Jobs by Year of Closing Date")
+        
+        # Ensure 'Closing Date Object' is datetime
+        filtered_df['Closing Date Object'] = pd.to_datetime(filtered_df['Closing Date Object'], errors='coerce')
+        
+        # Extract the year and count jobs by year
+        filtered_df['Year'] = filtered_df['Closing Date Object'].dt.year
+        yearly_counts = filtered_df['Year'].value_counts().sort_index()
+
+        # Create a Plotly bar chart
+        fig = px.bar(
+            x=yearly_counts.index,
+            y=yearly_counts.values,
+            labels={'x': 'Year', 'y': 'Number of Jobs'},
+            title="Count of Jobs by Year of Closing Date"
+        )
+        st.plotly_chart(fig)
     
     with col2:
         # Plot 2: Distribution of Annual Salaries Across Jobs
