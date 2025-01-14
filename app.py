@@ -213,7 +213,7 @@ with st.sidebar:
         
         # Construct the condition based on user input
         if filter_text:
-            filter_condition = filtered_df['Job Title'].str.lower().str.contains(filter_text.lower(), case=False, na=False)
+            filter_condition = combined_df['Job Title'].str.lower().str.contains(filter_text.lower(), case=False, na=False)
             conditions.append({'filter': filter_condition, 'logic': logic_operator})
     
     # Filter by Job Title (using fuzzy matching)
