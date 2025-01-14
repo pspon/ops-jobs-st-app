@@ -138,27 +138,27 @@ def adjust_salary_with_year(salary, salary_year):
         2023: 157.1, 2024: 160.6  # CPI 2024 not final, average of 12 months from Dec 2023 to Nov 2024
     }
 
-    try:
-        # Ensure the year is valid, if not, return original salary
-        if salary_year not in cpi_data:
-            #raise ValueError(f"Salary year must be between {min(cpi_data.keys())} and {max(cpi_data.keys())}.")
-            return salary
-            
-        # Return original salary if salary year is current year, no adjustment needed
-        current_year = datetime.datetime.now().year
-        if salary_year == current_year:
-            return salary
-            
-        # Get the base and current CPI
-        base_cpi = cpi_data[salary_year]
-        current_cpi = cpi_data[max(cpi_data.keys())]  # Most recent year
-        
-        # Adjust salary based on the CPI ratio
-        adjusted_salary = salary * (current_cpi / base_cpi)
-        return round(adjusted_salary, 2)
-    except:
-        #print(f"{salary} {salary_year} FAILED")
+    salary_year = int(salary_year)
+    salary = float(salary)
+    
+    # Ensure the year is valid, if not, return original salary
+    if salary_year not in cpi_data:
+        #raise ValueError(f"Salary year must be between {min(cpi_data.keys())} and {max(cpi_data.keys())}.")
         return salary
+        
+    # Return original salary if salary year is current year, no adjustment needed
+    current_year = datetime.datetime.now().year
+    if salary_year == current_year:
+        return salary
+        
+    # Get the base and current CPI
+    base_cpi = cpi_data[salary_year]
+    current_cpi = cpi_data[max(cpi_data.keys())]  # Most recent year
+    
+    # Adjust salary based on the CPI ratio
+    adjusted_salary = salary * (current_cpi / base_cpi)
+    return round(adjusted_salary, 2)
+
 
 # Streamlit App Layout
 st.title("OPS Jobs Data")
