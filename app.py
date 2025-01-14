@@ -176,7 +176,7 @@ with st.sidebar:
     location_filter = st.text_input("Location", "").lower()
     
     # Filter by Job Title (using fuzzy matching)
-    job_filter = st.text_input("Job Title", "").lower()
+    #job_filter = st.text_input("Job Title", "").lower()
     
     # Filter by Closing Date (Date Range)
     start_date, end_date = st.date_input("Select Date Range", value=(datetime.today(), datetime.today() + timedelta(weeks=4)), min_value=combined_df['Closing Date Object'].min())
@@ -198,8 +198,8 @@ filtered_df = combined_df[
     (combined_df['Salary Min'] >= salary_filter[0]) &
     (combined_df['Salary Max'] <= salary_filter[1]) &
     ((combined_df['Organization'] == organization_filter) | (organization_filter == "All")) &
-    (combined_df['Location'].str.lower().str.contains(location_filter)) &
-    (combined_df['Job Title'].str.lower().str.contains(job_filter))
+    (combined_df['Location'].str.lower().str.contains(location_filter)) #&
+    #(combined_df['Job Title'].str.lower().str.contains(job_filter))
 ]
 
 # Filter DataFrame based on toggle switch
@@ -264,7 +264,7 @@ with st.sidebar:
     
         # Construct the condition based on user input
         if filter_text:
-            filter_condition = df['Description'].str.contains(filter_text, case=False, na=False)
+            filter_condition = filtered_df['Job Title'].str.lower().contains(filter_text.lower(), case=False, na=False)
             conditions.append({'filter': filter_condition, 'logic': logic_operator})
     
     # Display the resulting filtered DataFrame
