@@ -208,13 +208,6 @@ if show_restricted:
 else:
     filtered_df = filtered_df[~filtered_df['Job Title'].str.lower().str.contains('restricted to')]
 
-with st.sidebar:
-    # Filter by Job ID
-    job_ids = filtered_df['Job ID'].unique()
-    job_id_filter = st.multiselect("Job ID", job_ids, default = job_ids)
-
-filtered_df = filtered_df[(filtered_df['Job ID'].isin(job_id_filter))]
-
 # Add clickable links to Job ID column
 if show_int_URL == True:
     filtered_df['Link']  = filtered_df['Job ID'].apply(lambda x: f"https://intra.employees.careers.gov.on.ca/Preview.aspx?JobID={x}")
@@ -267,7 +260,7 @@ with st.sidebar:
     
         # Construct the condition based on user input
         if filter_text:
-            filter_condition = filtered_df['Job Title'].str.contains(filter_text, case=False, na=False)
+            filter_condition = filtered_df['Job Title'].str.lower().str.contains(filter_text.lower(), case=False, na=False)
             conditions.append({'filter': filter_condition, 'logic': logic_operator})
     
     # Display the resulting filtered DataFrame
@@ -277,6 +270,12 @@ with st.sidebar:
     else:
         st.write("No filters applied.")
 
+with st.sidebar:
+    # Filter by Job ID
+    job_ids = filtered_df['Job ID'].unique()
+    job_id_filter = st.multiselect("Job ID", job_ids, default = job_ids)
+
+filtered_df = filtered_df[(filtered_df['Job ID'].isin(job_id_filter))]
 
 #Order and filter combined_df
 column_order = [
