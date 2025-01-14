@@ -321,16 +321,28 @@ if display_df.shape[0] > 0:
         
         # Create a new column with Date in YYYY-MM-DD format
         filtered_df['Date'] = filtered_df['Closing Date Object'].dt.strftime('%Y-%m-%d')
-    
+
         # Create the plot with Plotly
-        fig = px.histogram(
-            filtered_df,
-            x='Date',
-            labels={'Date': 'Date', 'count': 'Number of Jobs'},
-            title="Count of Jobs by Date of Closing Date",
-            histfunc='count',  # This tells Plotly to count occurrences
-            template='plotly'
-        )
+        unique_jobs = filtered_df['Job Title'].str.lower().str.unique()
+        if len(unique_jobs) > 1:
+                fig = px.histogram(
+                filtered_df,
+                x='Date',
+                labels={'Date': 'Date', 'count': 'Number of Jobs'},
+                title="Count of Jobs by Date of Closing Date",
+                histfunc='count',  # This tells Plotly to count occurrences
+                template='plotly',
+                color='Job Title'
+            )
+        else:
+            fig = px.histogram(
+                filtered_df,
+                x='Date',
+                labels={'Date': 'Date', 'count': 'Number of Jobs'},
+                title="Count of Jobs by Date of Closing Date",
+                histfunc='count',  # This tells Plotly to count occurrences
+                template='plotly'
+            )
         
         # Update the x-axis to display in YYYY-MM-DD format
         fig.update_xaxes(
