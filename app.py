@@ -264,7 +264,7 @@ with st.sidebar:
     
         # Construct the condition based on user input
         if filter_text:
-            filter_condition = filtered_df['Job Title'].str.lower().contains(filter_text.lower(), case=False, na=False)
+            filter_condition = filtered_df['Job Title'].str.lower().str.contains(filter_text.lower(), case=False, na=False)
             conditions.append({'filter': filter_condition, 'logic': logic_operator})
     
     # Display the resulting filtered DataFrame
