@@ -159,12 +159,29 @@ def adjust_salary_with_year(salary, salary_year):
     adjusted_salary = salary * (current_cpi / base_cpi)
     return round(adjusted_salary, 2)
 
+# Function to apply the boolean filter logic to the DataFrame
+def apply_filter(df, conditions):
+    # Start with the first condition
+    condition = conditions[0]['filter']
+    
+    for i in range(1, len(conditions)):
+        if conditions[i]['logic'] == 'AND':
+            condition &= conditions[i]['filter']
+        elif conditions[i]['logic'] == 'OR':
+            condition |= conditions[i]['filter']
+        elif conditions[i]['logic'] == 'NOT':
+            condition &= ~conditions[i]['filter']
+    
+    # Apply the final condition to filter the DataFrame
+    return df[condition]
 
 # Streamlit App Layout
 st.title("OPS Jobs Data")
 
+# List to hold the user-defined filter conditions
+conditions = []
+
 with st.sidebar:
-    
     # Filter by Minimum Salary
     salary_filter = st.slider("Select Salary Range", max_value=200000, value=(80000, 160000))
     
@@ -174,6 +191,30 @@ with st.sidebar:
     
     # Filter by Location (using fuzzy matching)
     location_filter = st.text_input("Location", "").lower()
+
+    # Loop to allow dynamic addition of filters
+    num_filters = st.number_input("Number of Job Title Filters", min_value=1, max_value=5, value=1, step=1)
+    
+    for i in range(num_filters):
+        
+        # Logic operator dropdown for filters after the first one
+        if i > 0:
+            logic_operator = st.selectbox(
+                f"Logical Operator for Filter {i+1}",
+                ('AND', 'OR', 'NOT'),
+                key=f"operator_{i+1}"
+            )
+        else:
+            # The first filter does not require an operator, so we default to 'AND'
+            logic_operator = 'AND'
+        
+        # Text entry for the filter condition
+        filter_text = st.text_input(f"Filter {i+1}", "")
+        
+        # Construct the condition based on user input
+        if filter_text:
+            filter_condition = filtered_df['Job Title'].str.lower().str.contains(filter_text.lower(), case=False, na=False)
+            conditions.append({'filter': filter_condition, 'logic': logic_operator})
     
     # Filter by Job Title (using fuzzy matching)
     #job_filter = st.text_input("Job Title", "").lower()
@@ -202,6 +243,12 @@ filtered_df = combined_df[
     #(combined_df['Job Title'].str.lower().str.contains(job_filter))
 ]
 
+# Display the resulting filtered DataFrame
+if len(conditions) > 0:
+    filtered_df = apply_filter(filtered_df, conditions)
+else:
+    st.write("No filters applied.")
+    
 # Filter DataFrame based on toggle switch
 if show_restricted:
     filtered_df = filtered_df[filtered_df['Job Title'].str.lower().str.contains('restricted to')]
@@ -223,56 +270,6 @@ if show_CPI_adjusted_salary == True:
     # Adjust the 'Salary Min' and 'Salary Max' based on the year from 'Closing Year'
     filtered_df['Salary Min'] = filtered_df.apply(lambda x: adjust_salary_with_year(x['Salary Min'], x['Closing Year']), axis=1)
     filtered_df['Salary Max'] = filtered_df.apply(lambda x: adjust_salary_with_year(x['Salary Max'], x['Closing Year']), axis=1)
-
-# Function to apply the boolean filter logic to the DataFrame
-def apply_filter(df, conditions):
-    # Start with the first condition
-    condition = conditions[0]['filter']
-    
-    for i in range(1, len(conditions)):
-        if conditions[i]['logic'] == 'AND':
-            condition &= conditions[i]['filter']
-        elif conditions[i]['logic'] == 'OR':
-            condition |= conditions[i]['filter']
-        elif conditions[i]['logic'] == 'NOT':
-            condition &= ~conditions[i]['filter']
-    
-    # Apply the final condition to filter the DataFrame
-    return df[condition]
-
-# List to hold the user-defined filter conditions
-conditions = []
-
-with st.sidebar:
-    # Loop to allow dynamic addition of filters
-    num_filters = st.number_input("Number of Job Title Filters", min_value=1, max_value=5, value=1, step=1)
-    
-    for i in range(num_filters):
-        
-        # Logic operator dropdown for filters after the first one
-        if i > 0:
-            logic_operator = st.selectbox(
-                f"Logical Operator for Filter {i+1}",
-                ('AND', 'OR', 'NOT'),
-                key=f"operator_{i+1}"
-            )
-        else:
-            # The first filter does not require an operator, so we default to 'AND'
-            logic_operator = 'AND'
-        
-        # Text entry for the filter condition
-        filter_text = st.text_input(f"Filter {i+1}", "")
-        
-        # Construct the condition based on user input
-        if filter_text:
-            filter_condition = filtered_df['Job Title'].str.lower().str.contains(filter_text.lower(), case=False, na=False)
-            conditions.append({'filter': filter_condition, 'logic': logic_operator})
-    
-    # Display the resulting filtered DataFrame
-    if len(conditions) > 0:
-        filtered_df = apply_filter(filtered_df, conditions)
-    else:
-        st.write("No filters applied.")
 
 with st.sidebar:
     # Filter by Job ID
