@@ -271,7 +271,6 @@ with st.sidebar:
     # Display the resulting filtered DataFrame
     if len(conditions) > 0:
         filtered_df = apply_filter(filtered_df, conditions)
-        st.write("Filtered DataFrame with:", conditions)
     else:
         st.write("No filters applied.")
 
