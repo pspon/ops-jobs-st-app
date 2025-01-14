@@ -314,47 +314,41 @@ if display_df.shape[0] > 0:
     col1, col2 = st.columns(2)
     with col1:
         # Plot 1: Count of Jobs by Closing Date (Binned by Date in YYYY-MM-DD format)
-        st.subheader("Count of Jobs by Closing Date")
+        st.subheader("Count of Jobs by Date of Closing Date")
+        
+        # Ensure 'Closing Date Object' is datetime
+        filtered_df['Closing Date Object'] = pd.to_datetime(filtered_df['Closing Date Object'], errors='coerce')
+        
+        # Create a new column with Date in YYYY-MM-DD format
+        filtered_df['Date'] = filtered_df['Closing Date Object'].dt.strftime('%Y-%m-%d')
     
         # Create the plot with Plotly
         fig = px.histogram(
             filtered_df,
             x='Date',
             labels={'Date': 'Date', 'count': 'Number of Jobs'},
-            title="Count of Jobs by Closing Date",
+            title="Count of Jobs by Date of Closing Date",
             histfunc='count',  # This tells Plotly to count occurrences
-            template='plotly_dark',  # Dark theme for the plot
-            color_discrete_sequence=["#FF5733"],  # Set a custom color (vibrant red)
+            template='plotly'
         )
-    
+        
         # Update the x-axis to display in YYYY-MM-DD format
         fig.update_xaxes(
             tickformat="%Y-%m-%d",  # Show Date in YYYY-MM-DD format
-            title="Date",
-            showgrid=True,  # Show grid for better readability
-            gridcolor="gray",  # Set grid color to gray for contrast
+            title="Date"
         )
-    
+
         fig.update_yaxes(
-            title="Number of Jobs",
-            showgrid=True,
-            gridcolor="gray",
+            title="Number of Jobs"
         )
-    
-        # Make background more vibrant and aesthetically pleasing
-        fig.update_layout(
-            plot_bgcolor="rgb(30, 30, 30)",  # Dark background for the plot
-            paper_bgcolor="rgb(50, 50, 50)",  # Slightly lighter background around the plot
-            font=dict(color="white"),  # Set font color to white for better readability
-        )
-    
+        
         # Display the plot
         st.plotly_chart(fig)
     
     with col2:
         # Plot 2: Interactive Distribution of Annual Salaries Across Jobs
         st.subheader("Distribution of Annual Salaries Across Jobs")
-    
+        
         # Drop NaN values and create an interactive histogram using Plotly
         salary_data = filtered_df['Salary Min'].dropna()
     
@@ -365,21 +359,17 @@ if display_df.shape[0] > 0:
             nbins=30,  # Number of bins for the histogram
             labels={'x': 'Annual Salary', 'count': 'Frequency'},
             title="Distribution of Annual Salaries Across Jobs",
-            template='plotly',  # Standard Plotly template (light background)
-            color_discrete_sequence=["#1F77B4"],  # Custom color for the salary plot (blue)
+            template='plotly',
         )
-    
+        
         # Update the layout to make the plot more readable
         fig.update_layout(
             xaxis_title="Annual Salary",
             yaxis_title="Frequency",
             bargap=0.2,  # Gap between bars
             hovermode="x unified",  # Unified hover label on the x-axis
-            plot_bgcolor="rgb(255, 255, 255)",  # White background for the plot
-            paper_bgcolor="rgb(240, 240, 240)",  # Slightly gray background around the plot
-            font=dict(color="black"),  # Font color black for better readability
         )
-    
+        
         # Display the Plotly chart in Streamlit
         st.plotly_chart(fig)
 else:
