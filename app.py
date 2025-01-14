@@ -138,12 +138,10 @@ def adjust_salary_with_year(salary, salary_year):
         2023: 157.1, 2024: 160.6  # CPI 2024 not final, average of 12 months from Dec 2023 to Nov 2024
     }
     
-    # Ensure the year is valid
+    # Ensure the year is valid, if not, return original salary
     if salary_year not in cpi_data:
-        print(salary)
-        print(salary_year)
-        raise ValueError(f"Salary year must be between {min(cpi_data.keys())} and {max(cpi_data.keys())}.")
-        return np.nan
+        #raise ValueError(f"Salary year must be between {min(cpi_data.keys())} and {max(cpi_data.keys())}.")
+        return salary
         
     # Return original salary if salary year is current year, no adjustment needed
     current_year = datetime.datetime.now().year
