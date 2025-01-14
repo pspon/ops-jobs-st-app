@@ -323,7 +323,7 @@ if display_df.shape[0] > 0:
         filtered_df['Date'] = filtered_df['Closing Date Object'].dt.strftime('%Y-%m-%d')
 
         # Create the plot with Plotly
-        unique_jobs = filtered_df['Job Title'].str.lower().str.unique()
+        unique_jobs = filtered_df['Job Title'].unique()
         if len(unique_jobs) > 1:
                 fig = px.histogram(
                 filtered_df,
