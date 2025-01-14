@@ -353,26 +353,14 @@ if display_df.shape[0] > 0:
         salary_data = filtered_df['Salary Min'].dropna()
     
         # Create the plot with Plotly
-        unique_jobs = filtered_df['Job Title'].unique()
-        if len(unique_jobs) > 1:
-            fig = px.histogram(
-                salary_data,
-                x=salary_data,
-                nbins=30,  # Number of bins for the histogram
-                labels={'x': 'Annual Salary', 'count': 'Frequency'},
-                title="Distribution of Annual Salaries Across Jobs",
-                template='plotly',
-                color='Job Title'
-            )
-        else:
-            fig = px.histogram(
-                salary_data,
-                x=salary_data,
-                nbins=30,  # Number of bins for the histogram
-                labels={'x': 'Annual Salary', 'count': 'Frequency'},
-                title="Distribution of Annual Salaries Across Jobs",
-                template='plotly',
-            )
+        fig = px.histogram(
+            salary_data,
+            x=salary_data,
+            nbins=30,  # Number of bins for the histogram
+            labels={'x': 'Annual Salary', 'count': 'Frequency'},
+            title="Distribution of Annual Salaries Across Jobs",
+            template='plotly',
+        )
         
         # Update the layout to make the plot more readable
         fig.update_layout(
