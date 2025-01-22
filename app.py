@@ -188,7 +188,7 @@ with st.sidebar:
     # Filter by Organization
     organizations = combined_df['Organization'].unique()
     #organization_filter = st.selectbox("Select Organization", ["All"] + list(organizations))
-    organization_filter = st.multiselect("Select Organizations", options=organizations, default=organizations, label_visibility=False)
+    organization_filter = st.multiselect("Select Organizations", options=organizations, default=organizations, label_visibility="collapsed")
     
     # Filter by Location (using fuzzy matching)
     location_filter = st.text_input("Location", "").lower()
