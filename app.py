@@ -311,7 +311,7 @@ if display_df.shape[0] > 0:
         hide_index=True,
     )
     
-    col1, col2 = st.columns(2)
+    col1, col2, col3 = st.columns(3)
     with col1:
         # Plot 1: Count of Jobs by Closing Date (Binned by Date in YYYY-MM-DD format)
         st.subheader("Count of Jobs by Date of Closing Date")
@@ -371,6 +371,54 @@ if display_df.shape[0] > 0:
         )
         
         # Display the Plotly chart in Streamlit
+        st.plotly_chart(fig)
+    with col3:
+        # Plot 3: Trends in Hiring by Organization Over Time
+        st.subheader("Trends in Hiring by Organization Over Time")
+        
+        # Convert 'Closing Date Object' to datetime (ensure correct format)
+        filtered_df['Closing Date Object'] = pd.to_datetime(filtered_df['Closing Date Object'], errors='coerce')
+        
+        # Extract Year-Month from 'Closing Date Object'
+        filtered_df['Year-Month'] = filtered_df['Closing Date Object'].dt.to_period('M').astype(str)
+        
+        # Group by 'Organization' and 'Year-Month' to calculate the count of postings
+        trends_data = (
+            filtered_df
+            .groupby(['Organization', 'Year-Month'])
+            .size()
+            .reset_index(name='Postings')
+        )
+        
+        # Calculate the percentage of postings per month for each organization
+        monthly_totals = (
+            trends_data
+            .groupby('Year-Month')['Postings']
+            .transform('sum')
+        )
+        trends_data['Percent'] = (trends_data['Postings'] / monthly_totals) * 100
+        
+        # Create the Plotly line plot
+        fig = px.line(
+            trends_data,
+            x='Year-Month',
+            y='Percent',
+            color='Organization',
+            title="Hiring Trends by Organization Over Time",
+            labels={'Year-Month': 'Month', 'Percent': 'Percent of Total Postings'},
+            template='plotly',
+            markers=True  # Add markers to the line
+        )
+        
+        # Update layout for better readability
+        fig.update_layout(
+            xaxis_title="Month (YYYY-MM)",
+            yaxis_title="Percent of Total Postings",
+            legend_title="Organization",
+            hovermode="x unified"
+        )
+        
+        # Display the plot
         st.plotly_chart(fig)
 else:
     st.write('No jobs available')
