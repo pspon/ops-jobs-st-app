@@ -9,6 +9,7 @@ import seaborn as sns
 import plotly.graph_objects as go
 import plotly.express as px
 import numpy as np
+import multiprocessing
 
 st.set_page_config(layout="wide")
 
@@ -209,9 +210,22 @@ def load_data(ttl=3600):
 
     # Assuming 'Job ID' is the column name in your DataFrame
     combined_df['Job ID'] = combined_df['Job ID'].apply(lambda x: str(x).replace(",", ""))
+
+    # Delete intermediates
+    del new_job_df
+    del recent_job_df
+    del historical_job_df
+    del new_EXT_df
+    del recent_EXT_df
+    del historical_EXT_df
+    del combined_job_df
+    del combined_EXT_df
+
     return(combined_df)
 
 # Load data with cache
+
+
 combined_df = load_data()
 
 # Streamlit App Layout
