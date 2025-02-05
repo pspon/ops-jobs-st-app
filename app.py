@@ -221,6 +221,21 @@ def load_data(ttl=3600):
     del combined_job_df
     del combined_EXT_df
 
+    # Subset columns to save memory
+    column_order = [
+        'Job ID',
+        'Job Title',
+        'Organization',
+        'Division',
+        'Salary Min',
+        'Salary Max',
+        'Location',
+        'Address',
+        'Closing Date',
+        'Link',
+    ]
+    combined_df = combined_df[[column_order]]
+
     return(combined_df)
 
 # Load data with cache
