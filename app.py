@@ -288,8 +288,8 @@ with st.sidebar:
 if show_EXT_data == False:
     # Apply filters based on Salary Type, Minimum Salary, Organization, Location, and Date Range
     filtered_df = combined_df[
-        (combined_df['Closing Date Object'] >= pd.to_datetime(start_date)) &
-        (combined_df['Closing Date Object'] <= pd.to_datetime(end_date)) &
+        (combined_df['Closing Date Object'] >= pd.to_datetime(start_date)).dt.tz_localize('America/New_York', ambiguous='NaT') &
+        (combined_df['Closing Date Object'] <= pd.to_datetime(end_date)).dt.tz_localize('America/New_York', ambiguous='NaT') &
         (combined_df['Salary Min'] >= salary_filter[0]) &
         (combined_df['Salary Max'] <= salary_filter[1]) &
         ((combined_df['Organization'] == organization_filter) | (organization_filter == "All")) &
@@ -300,8 +300,8 @@ if show_EXT_data == False:
 elif show_EXT_data == True:
     # Apply filters based on Salary Type, Minimum Salary, Organization, Location, and Date Range INCLUDING EXT fields
     filtered_df = combined_df[
-        (combined_df['Closing Date Object'] >= pd.to_datetime(start_date)) &
-        (combined_df['Closing Date Object'] <= pd.to_datetime(end_date)) &
+        (combined_df['Closing Date Object'] >= pd.to_datetime(start_date)).dt.tz_localize('America/New_York', ambiguous='NaT') &
+        (combined_df['Closing Date Object'] <= pd.to_datetime(end_date)).dt.tz_localize('America/New_York', ambiguous='NaT') &
         (combined_df['Salary Min'] >= salary_filter[0]) &
         (combined_df['Salary Max'] <= salary_filter[1]) &
         ((combined_df['Organization'] == organization_filter) | (organization_filter == "All")) &
