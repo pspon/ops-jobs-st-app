@@ -222,7 +222,7 @@ def load_data(ttl=3600):
     del combined_EXT_df
 
     # Subset columns to save memory
-    column_order = [
+    columns = [
         'Job ID',
         'Job Title',
         'Organization',
@@ -232,9 +232,9 @@ def load_data(ttl=3600):
         'Location',
         'Address',
         'Closing Date',
-        'Link',
+        'Closing Date Object'
     ]
-    combined_df = combined_df[[column_order]]
+    combined_df = combined_df[columns]
 
     return(combined_df)
 
