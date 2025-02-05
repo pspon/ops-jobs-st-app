@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import requests
-from io import StringIO
+from io import StringIO, BytesIO
 from tqdm import tqdm
 from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
@@ -25,6 +25,13 @@ DIRECTORY = st.secrets["DIRECTORY"]
 CURRENT_CSV_URL = st.secrets["CURRENT_CSV_URL"]
 RECENT_CSV_URL = st.secrets["RECENT_CSV_URL"]
 HISTORICAL_CSV_URL = st.secrets["HISTORICAL_CSV_URL"]
+CURRENT_EXT_URL = st.secrets["CURRENT_EXT_URL"]
+RECENT_EXT_URL = st.secrets["RECENT_EXT_URL"]
+HISTORICAL_EXT_URL = st.secrets["HISTORICAL_EXT_URL"]
+
+# Salary cutoffs
+MIN_SALARY = st.secrets["MIN_SALARY"]
+MAX_SALARY = st.secrets["MAX_SALARY"]
 
 # Function to fetch the list of files in the directory
 def fetch_file_list(repo_owner, repo_name, branch, directory, token):
@@ -47,25 +54,19 @@ def fetch_csv_from_github(url, token):
         st.error(f"Failed to fetch the CSV file from GitHub: {url}")
         return None
 
+# Function to fetch the parquet file from GitHub
+def fetch_parquet_from_github(url, token):
+    headers = {'Authorization': f'token {token}'}
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        return BytesIO(response.content)
+    else:
+        print(f"Failed to fetch the Parquet file from GitHub: {url}")
+        return None
+    
 # Function to create link emoji
 def create_link(url:str) -> str:
     return f'''<a href="{url}">🔗</a>'''
-
-# Fetch the CSV file
-csv_file = fetch_csv_from_github(CURRENT_CSV_URL, GITHUB_TOKEN)
-new_job_df = pd.read_csv(csv_file)
-
-# Fetch the recent CSV file
-csv_file_recent = fetch_csv_from_github(RECENT_CSV_URL, GITHUB_TOKEN)
-recent_job_df = pd.read_csv(csv_file_recent)
-
-# Fetch the historical CSV file
-csv_file_historical = fetch_csv_from_github(HISTORICAL_CSV_URL, GITHUB_TOKEN)
-historical_job_df = pd.read_csv(csv_file_historical)
-
-combined_df = pd.concat([recent_job_df,new_job_df,historical_job_df])
-combined_df = combined_df.loc[:, ~combined_df.columns.str.contains('^Unnamed')].reset_index(drop=True)
-
 
 # Function to calculate annual salary based on different salary types
 def calculate_annual_salary(salary_str,type):
@@ -105,19 +106,6 @@ def calculate_annual_salary(salary_str,type):
             return None
     else:
         return None
-
-# Calculate annual salary for each row with 'Min' type
-combined_df['Salary Min'] = combined_df['Salary'].apply(lambda x: calculate_annual_salary(x, 'Min'))
-
-# Calculate annual salary for each row with 'Max' type
-combined_df['Salary Max'] = combined_df['Salary'].apply(lambda x: calculate_annual_salary(x, 'Max'))
-
-# Ensure that the "Closing Date" column is in datetime format for proper handling
-combined_df['Closing Date Object'] = pd.to_datetime(combined_df['Closing Date'], errors='coerce')
-combined_df['Closing Date'] = combined_df['Closing Date Object'].dt.strftime('%Y-%m-%d')
-
-# Assuming 'Job ID' is the column name in your DataFrame
-combined_df['Job ID'] = combined_df['Job ID'].apply(lambda x: str(x).replace(",", ""))
 
 def adjust_salary_with_year(salary, salary_year):
     """
@@ -175,23 +163,78 @@ def apply_filter(df, conditions):
     # Apply the final condition to filter the DataFrame
     return df[condition]
 
+@st.cache_data
+def load_data(ttl=3600):
+    # Fetch the current CSV file
+    csv_file = fetch_csv_from_github(CURRENT_CSV_URL, GITHUB_TOKEN)
+    new_job_df = pd.read_csv(csv_file)
+
+    # Fetch the recent CSV file
+    csv_file_recent = fetch_csv_from_github(RECENT_CSV_URL, GITHUB_TOKEN)
+    recent_job_df = pd.read_csv(csv_file_recent)
+
+    # Fetch the historical CSV file
+    csv_file_historical = fetch_csv_from_github(HISTORICAL_CSV_URL, GITHUB_TOKEN)
+    historical_job_df = pd.read_csv(csv_file_historical)
+
+    # Fetch the current EXT file
+    EXT_file = fetch_csv_from_github(CURRENT_EXT_URL, GITHUB_TOKEN)
+    new_EXT_df = pd.read_csv(EXT_file)
+
+    # Fetch the recent EXT file
+    EXT_file_recent = fetch_csv_from_github(RECENT_EXT_URL, GITHUB_TOKEN)
+    recent_EXT_df = pd.read_csv(EXT_file_recent)
+
+    # Fetch the historical EXT file
+    EXT_file_historical = fetch_parquet_from_github(HISTORICAL_EXT_URL, GITHUB_TOKEN)
+    historical_EXT_df = pd.read_parquet(EXT_file_historical)
+
+    # Join dfs
+    combined_job_df = pd.concat([recent_job_df,new_job_df,historical_job_df])
+    combined_job_df = combined_job_df.loc[:, ~combined_job_df.columns.str.contains('^Unnamed')].reset_index(drop=True)
+    combined_EXT_df = pd.concat([recent_EXT_df,new_EXT_df,historical_EXT_df])
+    combined_EXT_df = combined_EXT_df.loc[:, ~combined_EXT_df.columns.str.contains('^Unnamed')].reset_index(drop=True)
+    combined_df = pd.merge(combined_job_df, combined_EXT_df, on='Job ID', how='left').drop_duplicates(subset='Job ID')
+    combined_df = combined_df.loc[:, ~combined_df.columns.str.contains('^Unnamed')].reset_index(drop=True)
+
+    # Calculate annual salary for each row with 'Min' type
+    combined_df['Salary Min'] = combined_df['Salary'].apply(lambda x: calculate_annual_salary(x, 'Min'))
+
+    # Calculate annual salary for each row with 'Max' type
+    combined_df['Salary Max'] = combined_df['Salary'].apply(lambda x: calculate_annual_salary(x, 'Max'))
+
+    # Ensure that the "Closing Date" column is in datetime format for proper handling
+    combined_df['Closing Date Object'] = pd.to_datetime(combined_df['Closing Date'], errors='coerce')
+    combined_df['Closing Date'] = combined_df['Closing Date Object'].dt.strftime('%Y-%m-%d')
+
+    # Assuming 'Job ID' is the column name in your DataFrame
+    combined_df['Job ID'] = combined_df['Job ID'].apply(lambda x: str(x).replace(",", ""))
+    return(combined_df)
+
+# Load data with cache
+combined_df = load_data()
+
 # Streamlit App Layout
 st.title("OPS Jobs Data")
+
+#st.dataframe(combined_df[combined_df['Job ID'] == '226674'])
+
 
 # List to hold the user-defined filter conditions
 conditions = []
 
 with st.sidebar:
     # Filter by Minimum Salary
-    salary_filter = st.slider("Select Salary Range", max_value=200000, value=(80000, 160000))
+    salary_filter = st.slider("Select Salary Range", max_value=200000, value=(MIN_SALARY, MAX_SALARY))
     
     # Filter by Organization
     organizations = combined_df['Organization'].unique()
     organization_filter = st.selectbox("Select Organization", ["All"] + list(organizations))
     #organization_filter = st.container(height=70).multiselect("Select Organizations", options=organizations, default=organizations)
-    
+
     # Filter by Location (using fuzzy matching)
     location_filter = st.text_input("Location", "").lower()
+
 
     # Loop to allow dynamic addition of filters
     num_filters = st.number_input("Number of Job Title Filters", min_value=1, max_value=5, value=1, step=1)
@@ -223,6 +266,14 @@ with st.sidebar:
     # Filter by Closing Date (Date Range)
     start_date, end_date = st.date_input("Select Date Range", value=(datetime.today(), datetime.today() + timedelta(weeks=4)), min_value=combined_df['Closing Date Object'].min())
 
+    # Toggle EXT info switch
+    show_EXT_data = st.checkbox('Show EXT Data', value=False)
+    if show_EXT_data == True:
+        # Filter by Division
+        division_filter = st.text_input("Division", "").lower()
+        # Filter by Address (using fuzzy matching)
+        address_filter = st.text_input("Address", "").lower()
+
     # Toggle TDA / restricted posting switch
     show_restricted = st.checkbox('Show TDA Jobs', value=False)
 
@@ -232,19 +283,33 @@ with st.sidebar:
     # Toggle inflation adjusted salary
     show_CPI_adjusted_salary = st.checkbox('Show Inflation Adjusted Salaries', value=False)
 
-
-# Apply filters based on Salary Type, Minimum Salary, Organization, Location, and Date Range
-filtered_df = combined_df[
-    (combined_df['Closing Date Object'] >= pd.to_datetime(start_date)) &
-    (combined_df['Closing Date Object'] <= pd.to_datetime(end_date)) &
-    (combined_df['Salary Min'] >= salary_filter[0]) &
-    (combined_df['Salary Max'] <= salary_filter[1]) &
-    ((combined_df['Organization'] == organization_filter) | (organization_filter == "All")) &
-    #(combined_df['Organization'].isin(organization_filter)) &
-    (combined_df['Location'].str.lower().str.contains(location_filter)) #&
-    #(combined_df['Job Title'].str.lower().str.contains(job_filter))
-]
-
+if show_EXT_data == False:
+    # Apply filters based on Salary Type, Minimum Salary, Organization, Location, and Date Range
+    filtered_df = combined_df[
+        (combined_df['Closing Date Object'] >= pd.to_datetime(start_date)) &
+        (combined_df['Closing Date Object'] <= pd.to_datetime(end_date)) &
+        (combined_df['Salary Min'] >= salary_filter[0]) &
+        (combined_df['Salary Max'] <= salary_filter[1]) &
+        ((combined_df['Organization'] == organization_filter) | (organization_filter == "All")) &
+        (combined_df['Location'].str.lower().str.contains(location_filter))
+        #(combined_df['Organization'].isin(organization_filter)) &
+        #(combined_df['Job Title'].str.lower().str.contains(job_filter))
+    ]
+elif show_EXT_data == True:
+    # Apply filters based on Salary Type, Minimum Salary, Organization, Location, and Date Range INCLUDING EXT fields
+    filtered_df = combined_df[
+        (combined_df['Closing Date Object'] >= pd.to_datetime(start_date)) &
+        (combined_df['Closing Date Object'] <= pd.to_datetime(end_date)) &
+        (combined_df['Salary Min'] >= salary_filter[0]) &
+        (combined_df['Salary Max'] <= salary_filter[1]) &
+        ((combined_df['Organization'] == organization_filter) | (organization_filter == "All")) &
+        (combined_df['Location'].str.lower().str.contains(location_filter)) &
+        #(combined_df['Organization'].isin(organization_filter)) &
+        #(combined_df['Job Title'].str.lower().str.contains(job_filter))
+        (combined_df['Division'].str.lower().str.contains(division_filter)) &
+        (combined_df['Address'].str.lower().str.contains(address_filter)) #&
+    ]    
+#st.dataframe(filtered_df[filtered_df['Job ID'] == '226674'])
 # Display the resulting filtered DataFrame
 if len(conditions) > 0:
     filtered_df = apply_filter(filtered_df, conditions)
@@ -280,17 +345,33 @@ with st.sidebar:
 
 filtered_df = filtered_df[(filtered_df['Job ID'].isin(job_id_filter))]
 
-#Order and filter combined_df
-column_order = [
-    'Job ID',
-    'Job Title',
-    'Organization',
-    'Salary Min',
-    'Salary Max',
-    'Location',
-    'Closing Date',
-    'Link',
-]
+
+if show_EXT_data == False:
+    #Order and filter combined_df
+    column_order = [
+        'Job ID',
+        'Job Title',
+        'Organization',
+        'Salary Min',
+        'Salary Max',
+        'Location',
+        'Closing Date',
+        'Link',
+    ]
+elif show_EXT_data == True:
+    #Order and filter combined_df
+    column_order = [
+        'Job ID',
+        'Job Title',
+        'Organization',
+        'Division',
+        'Salary Min',
+        'Salary Max',
+        'Location',
+        'Address',
+        'Closing Date',
+        'Link',
+    ]
 display_df = filtered_df[column_order]
 display_df = display_df.sort_values(by=['Closing Date','Salary Min'],ascending=[True,True])
 
@@ -313,7 +394,7 @@ if display_df.shape[0] > 0:
         hide_index=True,
     )
     
-    col1, col2, col3 = st.columns(3)
+    col1, col2 = st.columns(2)
     with col1:
         # Plot 1: Count of Jobs by Closing Date (Binned by Date in YYYY-MM-DD format)
         st.subheader("Count of Jobs by Date of Closing Date")
@@ -373,54 +454,6 @@ if display_df.shape[0] > 0:
         )
         
         # Display the Plotly chart in Streamlit
-        st.plotly_chart(fig)
-    with col3:
-        # Plot 3: Trends in Hiring by Organization Over Time
-        st.subheader("Trends in Hiring by Organization Over Time")
-        
-        # Convert 'Closing Date Object' to datetime (ensure correct format)
-        filtered_df['Closing Date Object'] = pd.to_datetime(filtered_df['Closing Date Object'], errors='coerce')
-        
-        # Extract Year-Month from 'Closing Date Object'
-        filtered_df['Year-Month'] = filtered_df['Closing Date Object'].dt.to_period('M').astype(str)
-        
-        # Group by 'Organization' and 'Year-Month' to calculate the count of postings
-        trends_data = (
-            filtered_df
-            .groupby(['Organization', 'Year-Month'])
-            .size()
-            .reset_index(name='Postings')
-        )
-        
-        # Calculate the percentage of postings per month for each organization
-        monthly_totals = (
-            trends_data
-            .groupby('Year-Month')['Postings']
-            .transform('sum')
-        )
-        trends_data['Percent'] = (trends_data['Postings'] / monthly_totals) * 100
-        
-        # Create the Plotly line plot
-        fig = px.line(
-            trends_data,
-            x='Year-Month',
-            y='Percent',
-            color='Organization',
-            title="Hiring Trends by Organization Over Time",
-            labels={'Year-Month': 'Month', 'Percent': 'Percent of Total Postings'},
-            template='plotly',
-            markers=True  # Add markers to the line
-        )
-        
-        # Update layout for better readability
-        fig.update_layout(
-            xaxis_title="Month (YYYY-MM)",
-            yaxis_title="Percent of Total Postings",
-            legend_title="Organization",
-            hovermode="x unified"
-        )
-        
-        # Display the plot
         st.plotly_chart(fig)
 else:
     st.write('No jobs available')
