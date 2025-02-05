@@ -203,10 +203,8 @@ def load_data(ttl=3600):
     # Calculate annual salary for each row with 'Max' type
     combined_df['Salary Max'] = combined_df['Salary'].apply(lambda x: calculate_annual_salary(x, 'Max'))
 
-    # Assuming 'combined_df' is your DataFrame and 'Closing Date' is the column with date strings
-    combined_df['Closing Date'] = combined_df['Closing Date'].str.replace(' EST', '').str.replace(' EDT', '')  # Remove both timezone parts
+    # Ensure that the "Closing Date" column is in datetime format for proper handling
     combined_df['Closing Date Object'] = pd.to_datetime(combined_df['Closing Date'], errors='coerce')
-    combined_df['Closing Date Object'] = combined_df['Closing Date Object'].dt.tz_localize('America/New_York', ambiguous='NaT')  # Add the correct timezone
     combined_df['Closing Date'] = combined_df['Closing Date Object'].dt.strftime('%Y-%m-%d')
 
     # Assuming 'Job ID' is the column name in your DataFrame
@@ -288,8 +286,8 @@ with st.sidebar:
 if show_EXT_data == False:
     # Apply filters based on Salary Type, Minimum Salary, Organization, Location, and Date Range
     filtered_df = combined_df[
-        (combined_df['Closing Date Object'] >= pd.to_datetime(start_date)).dt.tz_localize('America/New_York', ambiguous='NaT') &
-        (combined_df['Closing Date Object'] <= pd.to_datetime(end_date)).dt.tz_localize('America/New_York', ambiguous='NaT') &
+        (combined_df['Closing Date Object'] >= pd.to_datetime(start_date)) &
+        (combined_df['Closing Date Object'] <= pd.to_datetime(end_date)) &
         (combined_df['Salary Min'] >= salary_filter[0]) &
         (combined_df['Salary Max'] <= salary_filter[1]) &
         ((combined_df['Organization'] == organization_filter) | (organization_filter == "All")) &
@@ -300,8 +298,8 @@ if show_EXT_data == False:
 elif show_EXT_data == True:
     # Apply filters based on Salary Type, Minimum Salary, Organization, Location, and Date Range INCLUDING EXT fields
     filtered_df = combined_df[
-        (combined_df['Closing Date Object'] >= pd.to_datetime(start_date)).dt.tz_localize('America/New_York', ambiguous='NaT') &
-        (combined_df['Closing Date Object'] <= pd.to_datetime(end_date)).dt.tz_localize('America/New_York', ambiguous='NaT') &
+        (combined_df['Closing Date Object'] >= pd.to_datetime(start_date)) &
+        (combined_df['Closing Date Object'] <= pd.to_datetime(end_date)) &
         (combined_df['Salary Min'] >= salary_filter[0]) &
         (combined_df['Salary Max'] <= salary_filter[1]) &
         ((combined_df['Organization'] == organization_filter) | (organization_filter == "All")) &
