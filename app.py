@@ -163,8 +163,8 @@ def apply_filter(df, conditions):
     # Apply the final condition to filter the DataFrame
     return df[condition]
 
-@st.cache_data
-def load_data(ttl=3600):
+
+def load_data():
     # Fetch the current CSV file
     csv_file = fetch_csv_from_github(CURRENT_CSV_URL, GITHUB_TOKEN)
     new_job_df = pd.read_csv(csv_file)
