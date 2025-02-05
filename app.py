@@ -203,8 +203,10 @@ def load_data(ttl=3600):
     # Calculate annual salary for each row with 'Max' type
     combined_df['Salary Max'] = combined_df['Salary'].apply(lambda x: calculate_annual_salary(x, 'Max'))
 
-    # Ensure that the "Closing Date" column is in datetime format for proper handling
+    # Assuming 'combined_df' is your DataFrame and 'Closing Date' is the column with date strings
+    combined_df['Closing Date'] = combined_df['Closing Date'].str.replace(' EST', '').str.replace(' EDT', '')  # Remove both timezone parts
     combined_df['Closing Date Object'] = pd.to_datetime(combined_df['Closing Date'], errors='coerce')
+    combined_df['Closing Date Object'] = combined_df['Closing Date Object'].dt.tz_localize('America/New_York', ambiguous='NaT')  # Add the correct timezone
     combined_df['Closing Date'] = combined_df['Closing Date Object'].dt.strftime('%Y-%m-%d')
 
     # Assuming 'Job ID' is the column name in your DataFrame
