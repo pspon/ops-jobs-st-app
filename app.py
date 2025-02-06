@@ -225,6 +225,7 @@ def load_data(ttl=3600):
     columns = [
         'Job ID',
         'Job Title',
+        'Job Code',
         'Organization',
         'Division',
         'Salary Min',
@@ -302,6 +303,8 @@ with st.sidebar:
         division_filter = st.text_input("Division", "").lower()
         # Filter by Address (using fuzzy matching)
         address_filter = st.text_input("Address", "").lower()
+        # Filter by Job Code (using fuzzy matching)
+        job_code_filter = st.text_input("Job Code", "").lower()
 
     # Toggle TDA / restricted posting switch
     show_restricted = st.checkbox('Show TDA Jobs', value=False)
@@ -336,7 +339,8 @@ elif show_EXT_data == True:
         #(combined_df['Organization'].isin(organization_filter)) &
         #(combined_df['Job Title'].str.lower().str.contains(job_filter))
         (combined_df['Division'].str.lower().str.contains(division_filter)) &
-        (combined_df['Address'].str.lower().str.contains(address_filter)) #&
+        (combined_df['Address'].str.lower().str.contains(address_filter)) &
+        (combined_df['Job Code'].str.lower().str.contains(job_code_filter)) 
     ]    
 #st.dataframe(filtered_df[filtered_df['Job ID'] == '226674'])
 # Display the resulting filtered DataFrame
@@ -392,6 +396,7 @@ elif show_EXT_data == True:
     column_order = [
         'Job ID',
         'Job Title',
+        'Job Code',
         'Organization',
         'Division',
         'Salary Min',
