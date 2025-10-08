@@ -181,8 +181,8 @@ def load_data(ttl=3600):
     historical_job_df = pd.read_csv(csv_file_historical)
 
     # Fetch the current EXT file
-    EXT_file = fetch_csv_from_github(CURRENT_EXT_URL, GITHUB_TOKEN)
-    new_EXT_df = pd.read_csv(EXT_file)
+    EXT_file = fetch_parquet_from_github(CURRENT_EXT_URL, GITHUB_TOKEN)
+    new_EXT_df = pd.read_parquet(EXT_file)
 
     # Fetch the recent EXT file
     EXT_file_recent = fetch_csv_from_github(RECENT_EXT_URL, GITHUB_TOKEN)
