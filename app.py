@@ -121,12 +121,12 @@ def adjust_salary_with_year(salary, salary_year):
     Returns:
     - float: The adjusted salary for the most recent year.
     """
-    # Updated CPI values for Canada (2008-2024, average annual CPI)
+    # Updated CPI values for Canada (2008-2024, average annual CPI, non seasonally adjusted)
     cpi_data = {
         2008: 114.1, 2009: 114.4, 2010: 116.5, 2011: 119.9, 2012: 121.7,
         2013: 122.8, 2014: 125.2, 2015: 126.6, 2016: 128.4, 2017: 130.4,
         2018: 133.4, 2019: 136.0, 2020: 137.0, 2021: 141.6, 2022: 151.2,
-        2023: 157.1, 2024: 160.6  # CPI 2024 not final, average of 12 months from Dec 2023 to Nov 2024
+        2023: 157.1, 2024: 160.9, 2025: 164.1  # CPI 2025 not final, average of 11 months from Jan 2025 to Nov 2025
     }
 
     salary_year = int(salary_year)
