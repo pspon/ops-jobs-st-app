@@ -1,22 +1,37 @@
 name: Keep alive streamlit
+
 on:
   schedule:
-    - cron: '0 */12 * * *'
+    # Run every hour starting at 00:00 UTC
+    - cron: "0 * * * *"
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
+  workflow_dispatch: # Allows manual triggering of the workflow
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
-  build-and-probe:
-    permissions:
-      contents: read
+  update_date_and_ping_app:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
-      - name: Build Docker Image
-        run: docker build -t my-probe-image -f refresher/Dockerfile .
+    - name: Update date in Streamlit app
+      run: |
+        current_date=$(date '+%Y-%m-%d-%H')
+        sed -i "s/###Today is .*/###Today is $current_date/" app.py
 
-      - name: Run Docker Container
-        run: docker run --rm my-probe-image
+    - name: Commit and push changes
+      run: |
+        git config --local user.name "github-actions"
+        git config --local user.email "github-actions@github.com"
+        git add app.py
+        git commit -m "Update date in Streamlit app to $current_date"
+        git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Send GET request to keep app alive
+      run: |
+        curl -X GET "https://opsjobs.streamlit.app"
